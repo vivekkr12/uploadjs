@@ -1,9 +1,32 @@
+/*
+ * Copyright (c) 2016 Vivek Kumar
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 /*global File, FileList, alert, FileReader, Blob, console, FormData*/
 /*jslint continue:true, node:true, vars:true*/
 
 'use strict';
 
-/* Add an equals method to File prototype to check to disallow duplicates*/
+/* Add an equals method to File prototype to check and disallow duplicates*/
 if (File) {
   /**
    * Compares two files on basis of file name,
@@ -79,6 +102,7 @@ function Uploader(parameters) {
 
   this.filesToBeUploaded = []; // an array to hold all the added files
   this.fileTable = document.getElementById(parameters.fileTableId);
+  this.dropZone = document.getElementById(parameters.dropZoneId);
   this.addBtn = document.getElementById(parameters.addBtnId);
   this.removeBtn = document.getElementById(parameters.removeBtnId);
   this.uploadBtn = document.getElementById(parameters.uploadBtnId);
@@ -189,6 +213,21 @@ function Uploader(parameters) {
     var fileSelected = evt.dataTransfer.files;
     handleSelectedFiles(fileSelected);
   });
+  
+  if (this.dropZone) {
+    this.dropZone.addEventListener('dragover', function (evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = 'copy';
+    });
+  
+    this.dropZone.addEventListener('drop', function (evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      var fileSelected = evt.dataTransfer.files;
+      handleSelectedFiles(fileSelected);
+    });
+  }
   
   this.removeBtn.addEventListener('click', function () {
 
@@ -380,6 +419,9 @@ Uploader.prototype = {
         if (bytesLeft > 0) {
           sendRequest(xhr);
         } else {
+          if (uploader.setProgress) {
+            uploader.setProgress(100);
+          }
           onSuccess(file, xhr.response);
         }
       } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status !== 200) {

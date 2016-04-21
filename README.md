@@ -61,6 +61,7 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 | Option | Type | Required | Default | Description |
 | ------ | ---- | -------- | ------- | ----------- |
 | `fileTableId` | string | Yes | `undefined` | Id of the HTML table emelent to display added files. First row must be a table header. This table also behaves a a dropzone |
+|`dropZone`| string | No | `undefined` | Id of the HTML element which is to be treated as dropzone for adding files with drag and drop support |
 | `addBtnId` | string | Yes | `undefined` | Id of the `<input type="file">` button |
 | `removeBtn` | string | Yes | `undefined` | Id of the remove button |
 | `removeAllBtn` | string | Yes | `undefined` | Id of the remove all button |
@@ -105,7 +106,7 @@ See *demo/demo.html*
 #### Sample server code using java servlets is included
 To run the server code execute
 
-`$ mvn exec:java` 
+`$ mvn clean compile exec:java` 
 
 from `server/java/uplaodjs-server` directory
 

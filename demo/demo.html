@@ -33,6 +33,15 @@
         background-color: white !important;
         cursor: text !important;
       }
+      
+      #dropZone {
+        margin: 20px;
+        border: 2px dashed;
+        border-radius: 5px;
+        text-align: center;
+        padding: 30px;
+      }
+      
     </style>
     
     
@@ -76,6 +85,9 @@
             </form>
         </div>
         <div class="col-md-1"></div>
+        
+        <div class="col-md-9 col-lg-9" id="dropZone"><h4>Drag and Drop File Here</h4></div>
+        
       </div>
       
     </div>
@@ -116,11 +128,12 @@
           alert(response +"  "+statusText);
         },
         /* Optional Parametres */
+        dropZoneId : "dropZone",
         setProgress : function (progress) {
           var progressBar = document.getElementById('progressBar');
           progressBar.value = progress;
           progressBar.style.width = progress +'%';
-          progressBar.children[0].innerHTML = parseInt(progress, 10)+'% Completed';
+          progressBar.children[0].innerHTML = Math.round(progress)+'% Completed';
           if (progress === 100) {
             progressBar.classList.remove('progress-bar-info');
             progressBar.classList.add('progress-bar-success');
