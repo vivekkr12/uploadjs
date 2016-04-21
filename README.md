@@ -2,7 +2,7 @@
 An HTML5 and JavaScript based file uploader which lets you add and upload files one by one or simaltaneously. Upload Js works best with html table integration but it's upload method can be used independently.
 
 ### Features
-* Add / uplaod multiple files at once
+* Add / upload multiple files at once
 * Highly customizable with option to hook custom methods to be invoked before / after every action
 * Chunked upload for large files
 * Drag and drop support
@@ -94,7 +94,7 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 |`chunkSize` | Number | No | 1048576 (1 MB)| Chunk size when uploading large files |
 
 ## Demo
-See *demo/demo.html*
+See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo.html">demo/demo.html</a>
 
 ## Guide for Server Code
 
