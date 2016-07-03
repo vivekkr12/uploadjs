@@ -52,11 +52,11 @@ if (File) {
  *                    is present in the array.
  */
 Array.prototype.contains = function (element) {
-  
+
   if (this.indexOf(element) > -1) {
     return true;
   }
-  
+
   var currentElement;
   var i;
   for (i = 0; i < this.length; i += 1) {
@@ -109,18 +109,33 @@ function Uploader(parameters) {
   this.removeAllBtn = document.getElementById(parameters.removeAllBtnId);
   this.serverUrl = parameters.serverUrl;
   this.wrapperForm = document.getElementById(parameters.wrapperFormId);
-  
+
   this.setProgress = parameters.setProgress;
   this.getProgress = parameters.getProgress;
+
   this.getFileDetails = parameters.getFileDetails;
-  
+
+  this.customDisplay = typeof parameters.customDisplay === 'undefined' ? false : parameters.customDisplay;
+
+  if (this.customDisplay) {
+
+    if (typeof parameters.displayAddedFile === 'undefined' || typeof parameters.removeFileFromDisplay === 'undefined') {
+
+      throw "For custom display, two methods displayAddedFile and removeFileFromDisplay must be implemented";
+    }
+
+    this.displayAddedFile = parameters.displayAddedFile;
+    this.getSelectedFile = parameters.getSelectedFile;
+    this.removeFileFromDisplay = parameters.removeFileFromDisplay;
+  }
+
   /* Set this to a reference to use in event listeners */
   var uploader = this;
 
   var preAdd = parameters.preAdd;
   var postAdd = parameters.postAdd;
   var onDuplicateAdd = parameters.onDuplicateAdd;
-  
+
   var isValidFile = parameters.isValidFile;
   var onCheckFail = parameters.onCheckFail;
 
@@ -151,7 +166,7 @@ function Uploader(parameters) {
   /**
    * Function invoked when files are selected from input 
    * type file or dropped into the drop zone
-   * @param {[[Type]]} filesSelected An array of selected files
+   * @param {Array} filesSelected An array of selected files
    */
   var handleSelectedFiles = function (filesSelected) {
     if (preAddBtnAction) {
@@ -162,7 +177,7 @@ function Uploader(parameters) {
       file = filesSelected[i];
       if (isValidFile) {
         var fileValid = isValidFile(file);
-        
+
         if (fileValid === false) {
           if (onCheckFail) {
             onCheckFail(file);
@@ -170,7 +185,7 @@ function Uploader(parameters) {
           continue;
         }
       }
-      
+
       if (uploader.filesToBeUploaded.contains(file)) {
         if (onDuplicateAdd) {
           onDuplicateAdd(file);
@@ -195,32 +210,34 @@ function Uploader(parameters) {
     }
 
   };
-  
+
   this.addBtn.addEventListener('change', function (evt) {
     var filesSelected = uploader.addBtn.files;
     handleSelectedFiles(filesSelected);
   });
-  
-  this.fileTable.addEventListener('dragover', function (evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy';
-  });
-  
-  this.fileTable.addEventListener('drop', function (evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    var fileSelected = evt.dataTransfer.files;
-    handleSelectedFiles(fileSelected);
-  });
-  
+
+  if (this.fileTable) {
+    this.fileTable.addEventListener('dragover', function (evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = 'copy';
+    });
+
+    this.fileTable.addEventListener('drop', function (evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      var fileSelected = evt.dataTransfer.files;
+      handleSelectedFiles(fileSelected);
+    });
+  }
+
   if (this.dropZone) {
     this.dropZone.addEventListener('dragover', function (evt) {
       evt.stopPropagation();
       evt.preventDefault();
       evt.dataTransfer.dropEffect = 'copy';
     });
-  
+
     this.dropZone.addEventListener('drop', function (evt) {
       evt.stopPropagation();
       evt.preventDefault();
@@ -228,27 +245,48 @@ function Uploader(parameters) {
       handleSelectedFiles(fileSelected);
     });
   }
-  
+
   this.removeBtn.addEventListener('click', function () {
 
     if (preRemoveBtnAction) {
       preRemoveBtnAction();
     }
+    var file;
+    if (uploader.customDisplay) {
+      if (uploader.getSelectedFile) {
+        file = uploader.getSelectedFile();
+      } else if (uploader.filesToBeUploaded.length === 1) {
+        file = uploader.filesToBeUploaded[0];
+      } else {
+        throw "In custom display, getSelectedFile must be implemented when adding multiple files";
+      }
 
-    var allCheckBoxes = document.getElementsByClassName("fileRowCheckBox");
-    var i, checkbox, file;
-    for (i = allCheckBoxes.length - 1; i >= 0; i -= 1) {
-      checkbox = allCheckBoxes[i];
-      if (checkbox.checked === true) {
-        var tr = checkbox.parentElement.parentElement;
-        var rowIndex = tr.rowIndex;
-        file = uploader.filesToBeUploaded[rowIndex - 1];
+      if (file) {
         if (preRemove) {
           preRemove(file);
         }
-        uploader.remove(rowIndex);
+        uploader.remove(file);
         if (postRemove) {
           postRemove(file);
+        }
+      }
+
+    } else {
+      var allCheckBoxes = document.getElementsByClassName("fileRowCheckBox");
+      var i, checkbox;
+      for (i = allCheckBoxes.length - 1; i >= 0; i -= 1) {
+        checkbox = allCheckBoxes[i];
+        if (checkbox.checked === true) {
+          var tr = checkbox.parentElement.parentElement;
+          var rowIndex = tr.rowIndex;
+          file = uploader.filesToBeUploaded[rowIndex - 1];
+          if (preRemove) {
+            preRemove(file);
+          }
+          uploader.remove(file);
+          if (postRemove) {
+            postRemove(file);
+          }
         }
       }
     }
@@ -265,11 +303,11 @@ function Uploader(parameters) {
       preRemoveAllBtnAction();
     }
 
-    var i;
+    var file, i;
     for (i = uploader.filesToBeUploaded.length; i > 0; i -= 1) {
-      uploader.remove(i);
+      file = uploader.filesToBeUploaded[i - 1];
+      uploader.remove(file);
     }
-
     if (postRemoveAllBtnAction) {
       postRemoveAllBtnAction();
     }
@@ -277,26 +315,28 @@ function Uploader(parameters) {
   });
 
   this.uploadBtn.addEventListener('click', function () {
-
     if (preUploadBtnAction) {
       preUploadBtnAction();
     }
 
-    var allCheckBoxes = document.getElementsByClassName("fileRowCheckBox");
     var file;
-    if (allCheckBoxes.length === 1) {
-      file = uploader.filesToBeUploaded[0];
+    if (uploader.customDisplay) {
+      file = uploader.getSelectedFile();
     } else {
-      var i, checkbox;
-      for (i = allCheckBoxes.length - 1; i >= 0; i -= 1) {
-        checkbox = allCheckBoxes[i];
-        if (checkbox.checked === true) {
-          file = uploader.filesToBeUploaded[i];
-          break;
+      var allCheckBoxes = document.getElementsByClassName("fileRowCheckBox");
+      if (allCheckBoxes.length === 1) {
+        file = uploader.filesToBeUploaded[0];
+      } else {
+        var i, checkbox;
+        for (i = allCheckBoxes.length - 1; i >= 0; i -= 1) {
+          checkbox = allCheckBoxes[i];
+          if (checkbox.checked === true) {
+            file = uploader.filesToBeUploaded[i];
+            break;
+          }
         }
       }
     }
-
     if (file) {
       if (preUpload) {
         preUpload(file);
@@ -319,13 +359,13 @@ function Uploader(parameters) {
 
 }
 
+Uploader.isSupported = function () {
+  return (File && FileList && FileReader && Blob && XMLHttpRequest);
+};
+
 Uploader.prototype = {
   constructor: Uploader,
-  DEFAULT_CHUNK_SIZE: 1048576,  // 1 MB
-
-  isSupported: function () {
-    return (File && FileList && FileReader && Blob && XMLHttpRequest);
-  },
+  DEFAULT_CHUNK_SIZE: 1048576, // 1 MB
 
   resetAddBtn: function () {
     this.wrapperForm.reset();
@@ -333,36 +373,51 @@ Uploader.prototype = {
 
   addFile: function (file) {
 
-    var fileDtls = this.getFileDetails(file);
-    
-    var fileName = file.name;
-    var fileType = file.type;
-    var fileSize = file.size;
-    var fileLastModified = file.lastModified;
+    if (this.customDisplay) {
+      this.displayAddedFile(file);
+    } else {
 
-    var row = this.fileTable.insertRow();
-    row.className = "fileTableRow";
-    row.insertCell().innerHTML = "<input type='checkbox' class='fileRowCheckBox'>";
-    
-    var i;
-    for (i in fileDtls) {
-      if (fileDtls.hasOwnProperty(i)) {
-        row.insertCell().innerHTML = fileDtls[i];
+      var fileDtls;
+      if (this.getFileDetails) {
+        fileDtls = this.getFileDetails(file);
+      } else {
+        fileDtls.fileName = file.name;
+        fileDtls.fileType = file.type;
+        fileDtls.fileSize = file.size;
+        fileDtls.fileLastModified = file.lastModified;
+      }
+
+      var row = this.fileTable.insertRow();
+      row.className = "fileTableRow";
+      row.insertCell().innerHTML = "<input type='checkbox' class='fileRowCheckBox'>";
+
+      var i;
+      for (i in fileDtls) {
+        if (fileDtls.hasOwnProperty(i)) {
+          row.insertCell().innerHTML = fileDtls[i];
+        }
       }
     }
-    
+
     this.filesToBeUploaded.push(file);
 
   },
 
-  remove: function (rowIndex) {
-    this.fileTable.deleteRow(rowIndex);
-    this.filesToBeUploaded.removeByIndex(rowIndex - 1);
+  remove: function (file) {
+    if (this.customDisplay) {
+      this.removeFileFromDisplay(file);
+      this.filesToBeUploaded.removeByElement(file);
+    } else {
+      var rowIndex = this.filesToBeUploaded.indexOf(file) + 1;
+      this.fileTable.deleteRow(rowIndex);
+      this.filesToBeUploaded.removeByIndex(rowIndex - 1);
+    }
+
   },
 
   uploadFile: function (file, onSuccess, onError, payload) {
     /* Prepare to Uplaod*/
-    
+
     var uploader = this;
     var uploadXhr = new XMLHttpRequest();
     var start = 0;
@@ -370,7 +425,7 @@ Uploader.prototype = {
     var end = start + chunkSize;
     var bytesLeft = file.size;
     var totalChunks = file.size % chunkSize === 0 ? parseInt(file.size / chunkSize, 10) : parseInt(file.size / chunkSize, 10) + 1;
-    
+
     var sendRequest = function () {
       uploadXhr.open('POST', uploader.serverUrl, true);
       var data = new FormData();
@@ -380,7 +435,7 @@ Uploader.prototype = {
       start = end;
       end = start + chunkSize;
       bytesLeft -= chunkSize;
-      
+
       if (bytesLeft <= 0) {
         data.append("eof", true);
         var x;
@@ -392,7 +447,7 @@ Uploader.prototype = {
       } else {
         data.append("eof", false);
       }
-      
+
       uploadXhr.send(data);
     };
 
@@ -401,18 +456,17 @@ Uploader.prototype = {
     var initialValue = 0;
     uploadXhr.upload.onprogress = function (evt) {
       if (uploader.setProgress) {
-        
         if (evt.lengthComputable) {
-          uploadProgress =  initialValue + ((evt.loaded / evt.total) * progressDivisons);
+          uploadProgress = initialValue + ((evt.loaded / evt.total) * progressDivisons);
           uploader.setProgress(uploadProgress);
         }
       }
     };
-    
+
     uploadXhr.upload.onloadend = function (evt) {
       initialValue = uploader.getProgress();
     };
-    
+
     uploadXhr.onreadystatechange = function (evt) {
       var xhr = evt.target;
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
