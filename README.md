@@ -8,6 +8,9 @@ An HTML5 and JavaScript based file uploader which lets you add and upload files 
 * Drag and drop support
 * Option to add extra payload to be transfered as request parameter with file
 
+### Display of Added Files
+Files added for upload are by default displayed in a HTML table. This view can be hidden or changed by setting the parameter `customDisplay` to `true` and then providing appropriate implementation of `displayAddedFile`, `removeFileFromDisplay` and `getSelectedFile` methods.
+
 ## Usage
 
 Include the dependencies, create a new instnace of `Uploader` and pass on the html elements as parameter.
@@ -34,15 +37,6 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
     uploadBtnId: "uploadBtn",
     removeAllBtnId: "removeAllBtn",
     wrapperFormId : "wrapperForm",
-    getFileDetails : function (file) {
-      var fileDtls = {
-        fileName : file.name,
-        fileType : file.type,
-        fileSize : file.size,
-        fileLastMod : file.lastModified
-      };
-      return fileDtls;
-    },
     serverUrl : "http://host:port/handler",
     onSuccess : function (file, response) {
       alert(response);
@@ -60,17 +54,21 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 
 | Option | Type | Required | Default | Description |
 | ------ | ---- | -------- | ------- | ----------- |
-| `fileTableId` | string | Yes | `undefined` | Id of the HTML table emelent to display added files. First row must be a table header. This table also behaves a a dropzone |
+|`customDisplay`| boolean | No | `false` | A boolean falg to indicate whether custom view for added files is implemented. |
+| `fileTableId` | string | No | `undefined` | Id of the HTML table emelent to display added files. First row must be a table header. This table also behaves a a dropzone. Optional only when `customDisplay` is set to `true`  |
 |`dropZone`| string | No | `undefined` | Id of the HTML element which is to be treated as dropzone for adding files with drag and drop support |
 | `addBtnId` | string | Yes | `undefined` | Id of the `<input type="file">` button |
 | `removeBtn` | string | Yes | `undefined` | Id of the remove button |
 | `removeAllBtn` | string | Yes | `undefined` | Id of the remove all button |
 | `uploadBtn` | string | Yes | `undefined` | Id of the upload button button |
 | `wrapperFormId` | string | Yes | `undefined` | Id of the `form` element wrapping the buttons. Form element is required to wrap the buttons so as to reset input type file |
-| `getFileDetails` | function | Yes | `undefined` | File Details to be displayed in the file table. <code>function (file) {<br>var fileDtls = {<br>  fileName : file.name,<br>  fileType : file.type,<br>  fileSize : file.size,<br>  fileLastMod : file.lastModified<br>};<br>return fileDtls;</code> |
+| `getFileDetails` | function | No | `undefined` | File Details to be displayed in the file table. <code>function (file) {<br>var fileDtls = {<br>  fileName : file.name,<br>  fileType : file.type,<br>  fileSize : file.size,<br>  fileLastMod : file.lastModified<br>};<br>return fileDtls;</code> |
 | `serverUrl` | string | Yes | `undefined` | The URL of server to upload files |
 | `onSuccess` | function(`file, response`) | Yes | `undefined` | Callback when uplaod is successfull <code>function (file, response) {}</code> |
 | `onError` | function (`file, response, statusText`) | Yes | `undefined` | Callback when uplaod failed <code>function (file, response, statusText) {}</code> |
+|`displayAddedFile`| function(`file`) | No | `undefined` | function to display added file while `customDisplay` is set to true. This parameter is mandatory when using custom display|
+|`getSelectedFile`| function | No | `undefined` | function to get the selected file from custom display|
+|`removeFileFromDisplay`| function(`file`) | No | `undefined` | function to remove added file from display while `customDisplay` is set to true. This parameter is mandatory when using custom display|
 | `setProgress` | function (`progress`) | No| `undefined` | function to set current  upload progress to render progress bar. Minimum progress value is 0 and maximum is 100 <code>function (progress) {}</code> |
 | `getProgress` | function | No | `undefined` | function to get the current uplaod progress. <i>Required if setProgress is defined. to manage total progress in case of chunked uploads</i> <code>function () {<br>  return progress;}</code> |
 | `preAddBtnAction` | function | No | `undefined` | function to execute any task before starting add action |
@@ -95,6 +93,7 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 
 ## Demo
 See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo.html">demo/demo.html</a>
+See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo-custom-display.html">demo/demo-custom-display.html</a>
 
 ## Guide for Server Code
 
