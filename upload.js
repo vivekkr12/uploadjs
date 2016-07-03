@@ -129,6 +129,8 @@ function Uploader(parameters) {
     this.removeFileFromDisplay = parameters.removeFileFromDisplay;
   }
 
+  var asycFileValidator = typeof parameters.asyncFileValidator === 'undefined' ? false : parameters.asyncFileValidator;
+
   /* Set this to a reference to use in event listeners */
   var uploader = this;
 
@@ -136,8 +138,14 @@ function Uploader(parameters) {
   var postAdd = parameters.postAdd;
   var onDuplicateAdd = parameters.onDuplicateAdd;
 
-  var isValidFile = parameters.isValidFile;
-  var onCheckFail = parameters.onCheckFail;
+  var isValidFile, onCheckFail, validateFile;
+  if (asycFileValidator) {
+    validateFile = parameters.validateFile;
+  } else {
+    isValidFile = parameters.isValidFile;
+    onCheckFail = parameters.onCheckFail;
+  }
+
 
   var preRemove = parameters.preRemove;
   var postRemove = parameters.postRemove;
@@ -172,20 +180,20 @@ function Uploader(parameters) {
     if (preAddBtnAction) {
       preAddBtnAction();
     }
+
+    var addFileActivity = function (file) {
+      if (preAdd) {
+        preAdd(file);
+      }
+      uploader.addFile(file);
+      if (postAdd) {
+        postAdd(file);
+      }
+    };
+
     var file, i;
     for (i = 0; i < filesSelected.length; i += 1) {
       file = filesSelected[i];
-      if (isValidFile) {
-        var fileValid = isValidFile(file);
-
-        if (fileValid === false) {
-          if (onCheckFail) {
-            onCheckFail(file);
-          }
-          continue;
-        }
-      }
-
       if (uploader.filesToBeUploaded.contains(file)) {
         if (onDuplicateAdd) {
           onDuplicateAdd(file);
@@ -194,12 +202,21 @@ function Uploader(parameters) {
         }
         continue;
       }
-      if (preAdd) {
-        preAdd(file);
-      }
-      uploader.addFile(file);
-      if (postAdd) {
-        postAdd(file);
+
+      if (asycFileValidator) {
+        validateFile(file, addFileActivity, onCheckFail);
+      } else {
+        if (isValidFile) {
+          var fileValid = isValidFile(file);
+
+          if (fileValid === false) {
+            if (onCheckFail) {
+              onCheckFail(file);
+            }
+            continue;
+          }
+          addFileActivity(file);
+        }
       }
     }
 

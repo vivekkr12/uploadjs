@@ -8,9 +8,6 @@ An HTML5 and JavaScript based file uploader which lets you add and upload files 
 * Drag and drop support
 * Option to add extra payload to be transfered as request parameter with file
 
-### Display of Added Files
-Files added for upload are by default displayed in a HTML table. This view can be hidden or changed by setting the parameter `customDisplay` to `true` and then providing appropriate implementation of `displayAddedFile`, `removeFileFromDisplay` and `getSelectedFile` methods.
-
 ## Usage
 
 Include the dependencies, create a new instnace of `Uploader` and pass on the html elements as parameter.
@@ -50,6 +47,34 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
   
 </script>
 ```
+
+### Display of Added Files
+Files added for upload are by default displayed in a HTML table. This view can be hidden or changed by setting the parameter `customDisplay` to `true` and then providing appropriate implementation of `displayAddedFile`, `removeFileFromDisplay` and `getSelectedFile` methods.
+
+### Async File Validator
+Often the file validation task is lengthy. For example reading a large file and verifying it's content. Such tasks need to asynchronous and addFile must be invoked afer file validation.
+UplaodJS provies and option to add an asynchronous file validator which registers addFile method as a callback.
+
+In the upload parameters set `asycFileValidator` to `true` and implement the `validateFile` method.
+
+```javascript
+asyncFileValidator : true,
+validateFile : function (file, onCheckPass, onCheckFail) {
+  var reader = new FileReader();
+  var pass = true;
+  reader.onloadend = function () {
+    console.log('read file - validating...'+file.name);
+    if (pass) {
+      onCheckPass(file);
+    } else {
+      onCheckFail(file);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  console.log('started reading file '+file.name);
+}
+```
+
 ## Upload Parameters
 
 | Option | Type | Required | Default | Description |
@@ -69,6 +94,8 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 |`displayAddedFile`| function(`file`) | No | `undefined` | function to display added file while `customDisplay` is set to true. This parameter is mandatory when using custom display|
 |`getSelectedFile`| function | No | `undefined` | function to get the selected file from custom display|
 |`removeFileFromDisplay`| function(`file`) | No | `undefined` | function to remove added file from display while `customDisplay` is set to true. This parameter is mandatory when using custom display|
+|`asycFileValidator`| boolean | `false` | No | A flag representing if an asynchronous file validator is implemented |
+|`validateFile`| fucntion (`file`,`onCheckPass`,`onCheckFail`) | `false` | No | Amethod to validate the file before adding. Implementors must invole `onCheckPass` / `onCheckFail` within this method when the validation checks pass / fail |
 | `setProgress` | function (`progress`) | No| `undefined` | function to set current  upload progress to render progress bar. Minimum progress value is 0 and maximum is 100 <code>function (progress) {}</code> |
 | `getProgress` | function | No | `undefined` | function to get the current uplaod progress. <i>Required if setProgress is defined. to manage total progress in case of chunked uploads</i> <code>function () {<br>  return progress;}</code> |
 | `preAddBtnAction` | function | No | `undefined` | function to execute any task before starting add action |
@@ -92,8 +119,14 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 |`chunkSize` | Number | No | 1048576 (1 MB)| Chunk size when uploading large files |
 
 ## Demo
+##### For Default behaviour
 See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo.html">demo/demo.html</a>
+
+##### For custom display 
 See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo-custom-display.html">demo/demo-custom-display.html</a>
+
+##### For asynchronous file validator
+See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo-async-file-validator.html">demo-async-file-validator.html</a>
 
 ## Guide for Server Code
 

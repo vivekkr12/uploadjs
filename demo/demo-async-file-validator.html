@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upload JS Demo</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+
+      .btn-file {
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        background: red;
+        cursor: inherit;
+        display: block;
+      }
+      input[readonly] {
+        background-color: white !important;
+        cursor: text !important;
+      }
+
+      #dropZone {
+        margin: 20px;
+        border: 2px dashed;
+        border-radius: 5px;
+        text-align: center;
+        padding: 30px;
+      }
+
+    </style>
+
+
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12 col-lg-12">
+          <h1><strong>Upload Js Demo</strong></h1>
+        </div>
+
+        <div class="col-md-9 col-lg-9">
+          <div class="progress">
+            <div class="progress-bar progress-bar-info progress-bar-striped " role="progressbar" id="progressBar" >
+              <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-9 col-lg-9 fileTable">
+          <table class="table table-bordered" id="fileTable">
+            <tr>
+              <th>Select</th>
+              <th>File Name</th>
+              <th>File Type</th>
+              <th>File Size</th>
+              <th>File last Modified</th>
+            </tr>
+          </table>
+        </div>
+        <div class="col-md-2 col-lg-2">
+          <form id="wrapperFormId">
+          <div class="button-group-vertical">
+              <span class="btn btn-info btn-file btn-block">
+                Add Files <input type="file" multiple id="addBtn"/>
+              </span>
+              <input type="button" class="btn btn-success btn-block" value="Upload" id="uploadBtn"/>
+              <input type="button" class="btn btn-warning btn-block" value="Remove" id="removeBtn"/>
+              <input type="reset" class="btn btn-danger btn-block" value="Remove All" id="removeAllBtn"/>
+            </div>
+            </form>
+        </div>
+        <div class="col-md-1"></div>
+
+        <div class="col-md-9 col-lg-9" id="dropZone"><h4>Drag and Drop File Here</h4></div>
+
+      </div>
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- Include Uplaod JS -->
+    <script src="../upload.js"></script>
+
+    <script type="text/javascript">
+
+
+
+      var uploadParameters = {
+        fileTableId: "fileTable",
+        addBtnId: "addBtn",
+        removeBtnId: "removeBtn",
+        uploadBtnId: "uploadBtn",
+        removeAllBtnId: "removeAllBtn",
+        wrapperFormId : "wrapperFormId",
+        getFileDetails : function (file) {
+          var fileDtls = {
+            fileName : file.name,
+            fileType : file.type,
+            fileSize : file.size,
+            fileLastMod : file.lastModified
+          };
+          return fileDtls;
+        },
+        serverUrl : "http://localhost:8080/",
+        onSuccess : function (file, response) {
+          alert(response);
+        },
+        onError : function (file, response, statusText) {
+          alert(response +"  "+statusText);
+        },
+        /* Optional Parametres */
+        dropZoneId : "dropZone",
+        setProgress : function (progress) {
+          var progressBar = document.getElementById('progressBar');
+          progressBar.value = progress;
+          progressBar.style.width = progress +'%';
+          progressBar.children[0].innerHTML = Math.round(progress)+'% Completed';
+          if (progress === 100) {
+            progressBar.classList.remove('progress-bar-info');
+            progressBar.classList.add('progress-bar-success');
+          } else {
+            progressBar.classList.add('progress-bar-success');
+            progressBar.classList.add('progress-bar-info');
+          }
+        },
+        asyncFileValidator : true,
+        validateFile : function (file, onCheckPass, onCheckFail) {
+          var reader = new FileReader();
+          var pass = true;
+          reader.onloadend = function () {
+            console.log('read file - validating...'+file.name);
+            if (pass) {
+              onCheckPass(file);
+            } else {
+              onCheckFail(file);
+            }
+          };
+          reader.readAsArrayBuffer(file);
+          console.log('started reading file '+file.name);
+        },
+        getProgress : function () {
+          var progressBar = document.getElementById('progressBar');
+          return progressBar.value;
+        }
+      };
+
+      var uploader = new Uploader(uploadParameters);
+
+    </script>
+
+
+  </body>
+</html>
