@@ -390,8 +390,8 @@ Uploader.prototype = {
       var selectedRowColor = this.selectedRowColor;
       row.insertCell().innerHTML = "<input type='checkbox' class='fileRowCheckBox'>";
       row.style.cursor = "pointer";
+      var checkBox = row.getElementsByClassName('fileRowCheckBox')[0];
       row.addEventListener('click', function () {
-        var checkBox = row.getElementsByClassName('fileRowCheckBox')[0];
         if (checkBox.checked) {
           checkBox.checked = false;
           row.style.backgroundColor = "#ffffff";
@@ -400,6 +400,17 @@ Uploader.prototype = {
           row.style.backgroundColor = selectedRowColor;
         }
       });
+
+      checkBox.addEventListener('click', function () {
+        if (checkBox.checked) {
+          checkBox.checked = false;
+          row.style.backgroundColor = "#ffffff";
+        } else {
+          checkBox.checked = true;
+          row.style.backgroundColor = selectedRowColor;
+        }
+      });
+
       var i;
       for (i in fileDtls) {
         if (fileDtls.hasOwnProperty(i)) {
