@@ -88,6 +88,7 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 | `uploadBtn` | string | Yes | `undefined` | Id of the upload button button |
 | `wrapperFormId` | string | Yes | `undefined` | Id of the `form` element wrapping the buttons. Form element is required to wrap the buttons so as to reset input type file |
 | `getFileDetails` | function | No | `undefined` | File Details to be displayed in the file table. <code>function (file) {<br>var fileDtls = {<br>  fileName : file.name,<br>  fileType : file.type,<br>  fileSize : file.size,<br>  fileLastMod : file.lastModified<br>};<br>return fileDtls;</code> |
+|`selectedRowColor`| string | No | `#dffff1` | Color to highlight the selected row in file table |
 | `serverUrl` | string | Yes | `undefined` | The URL of server to upload files |
 | `onSuccess` | function(`file, response`) | Yes | `undefined` | Callback when uplaod is successfull <code>function (file, response) {}</code> |
 | `onError` | function (`file, response, statusText`) | Yes | `undefined` | Callback when uplaod failed <code>function (file, response, statusText) {}</code> |

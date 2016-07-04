@@ -114,6 +114,7 @@ function Uploader(parameters) {
   this.getProgress = parameters.getProgress;
 
   this.getFileDetails = parameters.getFileDetails;
+  this.selectedRowColor = typeof parameters.selectedRowColor === 'undefined' ? "#dffff1" : parameters.selectedRowColor;
 
   this.customDisplay = typeof parameters.customDisplay === 'undefined' ? false : parameters.customDisplay;
 
@@ -141,6 +142,7 @@ function Uploader(parameters) {
   var isValidFile, onCheckFail, validateFile;
   if (asycFileValidator) {
     validateFile = parameters.validateFile;
+    onCheckFail = parameters.onCheckFail;
   } else {
     isValidFile = parameters.isValidFile;
     onCheckFail = parameters.onCheckFail;
@@ -215,8 +217,8 @@ function Uploader(parameters) {
             }
             continue;
           }
-          addFileActivity(file);
         }
+        addFileActivity(file);
       }
     }
 
@@ -405,9 +407,18 @@ Uploader.prototype = {
       }
 
       var row = this.fileTable.insertRow();
-      row.className = "fileTableRow";
       row.insertCell().innerHTML = "<input type='checkbox' class='fileRowCheckBox'>";
-
+      row.style.cursor = "pointer";
+      row.addEventListener('click', function () {
+        var checkBox = row.getElementsByClassName('fileRowCheckBox')[0];
+        if (checkBox.checked) {
+          checkBox.checked = false;
+          row.style.backgroundColor = "#ffffff";
+        } else {
+          checkBox.checked = true;
+          row.style.backgroundColor = this.selectedRowColor;
+        }
+      });
       var i;
       for (i in fileDtls) {
         if (fileDtls.hasOwnProperty(i)) {
