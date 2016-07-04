@@ -130,24 +130,14 @@ function Uploader(parameters) {
     this.removeFileFromDisplay = parameters.removeFileFromDisplay;
   }
 
-  var asycFileValidator = typeof parameters.asyncFileValidator === 'undefined' ? false : parameters.asyncFileValidator;
-
   /* Set this to a reference to use in event listeners */
   var uploader = this;
 
   var preAdd = parameters.preAdd;
   var postAdd = parameters.postAdd;
   var onDuplicateAdd = parameters.onDuplicateAdd;
-
-  var isValidFile, onCheckFail, validateFile;
-  if (asycFileValidator) {
-    validateFile = parameters.validateFile;
-    onCheckFail = parameters.onCheckFail;
-  } else {
-    isValidFile = parameters.isValidFile;
-    onCheckFail = parameters.onCheckFail;
-  }
-
+  var validateFile = parameters.validateFile;
+  var onCheckFail = parameters.onCheckFail;
 
   var preRemove = parameters.preRemove;
   var postRemove = parameters.postRemove;
@@ -205,19 +195,9 @@ function Uploader(parameters) {
         continue;
       }
 
-      if (asycFileValidator) {
+      if (validateFile) {
         validateFile(file, addFileActivity, onCheckFail);
       } else {
-        if (isValidFile) {
-          var fileValid = isValidFile(file);
-
-          if (fileValid === false) {
-            if (onCheckFail) {
-              onCheckFail(file);
-            }
-            continue;
-          }
-        }
         addFileActivity(file);
       }
     }
@@ -407,6 +387,7 @@ Uploader.prototype = {
       }
 
       var row = this.fileTable.insertRow();
+      var selectedRowColor = this.selectedRowColor;
       row.insertCell().innerHTML = "<input type='checkbox' class='fileRowCheckBox'>";
       row.style.cursor = "pointer";
       row.addEventListener('click', function () {
@@ -416,7 +397,7 @@ Uploader.prototype = {
           row.style.backgroundColor = "#ffffff";
         } else {
           checkBox.checked = true;
-          row.style.backgroundColor = this.selectedRowColor;
+          row.style.backgroundColor = selectedRowColor;
         }
       });
       var i;

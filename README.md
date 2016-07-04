@@ -51,14 +51,12 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
 ### Display of Added Files
 Files added for upload are by default displayed in a HTML table. This view can be hidden or changed by setting the parameter `customDisplay` to `true` and then providing appropriate implementation of `displayAddedFile`, `removeFileFromDisplay` and `getSelectedFile` methods.
 
-### Async File Validator
-Often the file validation task is lengthy. For example reading a large file and verifying it's content. Such tasks need to asynchronous and addFile must be invoked afer file validation.
-UplaodJS provies and option to add an asynchronous file validator which registers addFile method as a callback.
+### File Validator
+Sometimes files must be validated before upload. For example reading a large file and verifying it's content. UplaodJS provies and option to add a file validator which registers addFile method as a callback.
 
 In the upload parameters set `asycFileValidator` to `true` and implement the `validateFile` method.
 
 ```javascript
-asyncFileValidator : true,
 validateFile : function (file, onCheckPass, onCheckFail) {
   var reader = new FileReader();
   var pass = true;
@@ -67,7 +65,7 @@ validateFile : function (file, onCheckPass, onCheckFail) {
     if (pass) {
       onCheckPass(file);
     } else {
-      onCheckFail(file);
+      onCheckFail(file, "Not a valid file");
     }
   };
   reader.readAsArrayBuffer(file);
@@ -95,8 +93,8 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 |`displayAddedFile`| function(`file`) | No | `undefined` | function to display added file while `customDisplay` is set to true. This parameter is mandatory when using custom display|
 |`getSelectedFile`| function | No | `undefined` | function to get the selected file from custom display|
 |`removeFileFromDisplay`| function(`file`) | No | `undefined` | function to remove added file from display while `customDisplay` is set to true. This parameter is mandatory when using custom display|
-|`asycFileValidator`| boolean | `false` | No | A flag representing if an asynchronous file validator is implemented |
-|`validateFile`| fucntion (`file`, `onCheckPass`, `onCheckFail`) | `false` | No | Amethod to validate the file before adding. Implementors must invole `onCheckPass` / `onCheckFail` within this method when the validation checks pass / fail |
+|`validateFile`| function (`file`, `onCheckPass`, `onCheckFail`) | `undefined` | No | A method to validate the file before adding. Implementors must invoke `onCheckPass` / `onCheckFail` within this method when the validation checks pass / fail. UploadJS will register `addFile` as `onCheckPass` callback |
+|`onCheckFail`| function(`file`, `errorMsg`) | No | `undefined` | function invoked if file check fails. Required when validateFile is defined<code>function (file, errorMsg) {alert(file.name + " Invalid because " + errorMsg);}</code> |
 | `setProgress` | function (`progress`) | No| `undefined` | function to set current  upload progress to render progress bar. Minimum progress value is 0 and maximum is 100 <code>function (progress) {}</code> |
 | `getProgress` | function | No | `undefined` | function to get the current uplaod progress. <i>Required if setProgress is defined. to manage total progress in case of chunked uploads</i> <code>function () {<br>  return progress;}</code> |
 | `preAddBtnAction` | function | No | `undefined` | function to execute any task before starting add action |
@@ -110,8 +108,6 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 | `preAdd` | function (`file`) | No | `undefined` | function invoked on a file before it is added <code>function(file) {// do pre add stuff}</code> |
 |`postAdd` | function(`file`) | No | `undefined` | function invoked on a file after it is added <code>function(file) {// do post add stuff}</code> |
 |`onDuplicateAdd` | function | No | `alert('File already Added')` | function invoked if a duplicate file is being added |
-|`isValidFile` | function(`file`) | No | `undefined` | function invoked on a file before it is added to check if it's valid. function must return a boolean value. A false value from this methods prevents the file from being added <code>function(file){<br>return true;}</code> |
-|`onCheckFail`| function | No | `undefined` | function invoked if file check fails. Required when isValidFile is defined<code>function (file)</code> |
 | `preRemove` | function (`file`) | No | `undefined` | function invoked on a file before it is removed   <code>function(file) {// do pre remove stuff}</code> |
 | `postRemove` | function (`file`) | No | `undefined` | function invoked on a file after it is added <code>function(file) {// do post remove stuff}</code> |
 | `preUpload` | function (`file`) | No | `undefined` | function invoked on a file before upload starts <code>function(file) {// do pre upload stuff}</code> |
@@ -125,9 +121,6 @@ See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo.html">d
 
 ##### For custom display 
 See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo-custom-display.html">demo/demo-custom-display.html</a>
-
-##### For asynchronous file validator
-See <a href="https://github.com/vivekkr12/uploadjs/blob/master/demo/demo-async-file-validator.html">demo-async-file-validator.html</a>
 
 ## Guide for Server Code
 

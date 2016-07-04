@@ -111,6 +111,32 @@
         uploadBtnId: "uploadBtn",
         removeAllBtnId: "removeAllBtn",
         wrapperFormId : "wrapperFormId",
+        serverUrl : "http://localhost:8080/",
+        onSuccess : function (file, response) {
+          alert(response);
+        },
+        onError : function (file, response, statusText) {
+          alert(response +"  "+statusText);
+        },
+        /* Optional Parametres */
+        validateFile : function (file, onCheckPass, onCheckFail) {
+          var reader = new FileReader();
+          var pass = true;
+          reader.onloadend = function () {
+            console.log('read file - validating...'+file.name);
+            if (pass) {
+              onCheckPass(file);
+            } else {
+              onCheckFail(file, "Not a valid file");
+            }
+          };
+          reader.readAsArrayBuffer(file.slice(0, 5120));
+          console.log('started reading file '+file.name);
+        },
+        onCheckFail : function (file) {
+          console.log('on check fail: '+file);
+          alert('check failed');
+        },
         getFileDetails : function (file) {
           var fileDtls = {
             fileName : file.name,
@@ -120,14 +146,7 @@
           };
           return fileDtls;
         },
-        serverUrl : "http://localhost:8080/",
-        onSuccess : function (file, response) {
-          alert(response);
-        },
-        onError : function (file, response, statusText) {
-          alert(response +"  "+statusText);
-        },
-        /* Optional Parametres */
+        selectedRowColor : "#e0e0e0",
         dropZoneId : "dropZone",
         setProgress : function (progress) {
           var progressBar = document.getElementById('progressBar');
@@ -178,14 +197,6 @@
         },
         onDuplicateAdd : function (file) {
           console.log('already added: '+file);
-        },
-        isValidFile : function (file) {
-          console.log('is Valid file: '+file);
-          return true;
-        },
-        onCheckFail : function (file) {
-          console.log('on check fail: '+file);
-          alert('check failed');
         },
         preRemove : function (file) {
           console.log('pre remove: '+file);
