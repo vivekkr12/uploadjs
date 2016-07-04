@@ -96,7 +96,7 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 |`getSelectedFile`| function | No | `undefined` | function to get the selected file from custom display|
 |`removeFileFromDisplay`| function(`file`) | No | `undefined` | function to remove added file from display while `customDisplay` is set to true. This parameter is mandatory when using custom display|
 |`asycFileValidator`| boolean | `false` | No | A flag representing if an asynchronous file validator is implemented |
-|`validateFile`| fucntion (`file`,`onCheckPass`,`onCheckFail`) | `false` | No | Amethod to validate the file before adding. Implementors must invole `onCheckPass` / `onCheckFail` within this method when the validation checks pass / fail |
+|`validateFile`| fucntion (`file`, `onCheckPass`, `onCheckFail`) | `false` | No | Amethod to validate the file before adding. Implementors must invole `onCheckPass` / `onCheckFail` within this method when the validation checks pass / fail |
 | `setProgress` | function (`progress`) | No| `undefined` | function to set current  upload progress to render progress bar. Minimum progress value is 0 and maximum is 100 <code>function (progress) {}</code> |
 | `getProgress` | function | No | `undefined` | function to get the current uplaod progress. <i>Required if setProgress is defined. to manage total progress in case of chunked uploads</i> <code>function () {<br>  return progress;}</code> |
 | `preAddBtnAction` | function | No | `undefined` | function to execute any task before starting add action |
