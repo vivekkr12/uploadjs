@@ -54,7 +54,7 @@ Files added for upload are by default displayed in a HTML table. This view can b
 ### File Validator
 Sometimes files must be validated before upload. For example reading a large file and verifying it's content. UplaodJS provies and option to add a file validator which registers addFile method as a callback.
 
-In the upload parameters set `asycFileValidator` to `true` and implement the `validateFile` method.
+In the upload parameters implement the `validateFile` method.
 
 ```javascript
 validateFile : function (file, onCheckPass, onCheckFail) {
@@ -111,7 +111,7 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 | `preRemove` | function (`file`) | No | `undefined` | function invoked on a file before it is removed   <code>function(file) {// do pre remove stuff}</code> |
 | `postRemove` | function (`file`) | No | `undefined` | function invoked on a file after it is added <code>function(file) {// do post remove stuff}</code> |
 | `preUpload` | function (`file`) | No | `undefined` | function invoked on a file before upload starts <code>function(file) {// do pre upload stuff}</code> |
-| `addPayload` | function (`file`) | No | `undefined` | function to add payload to be sent with file to server. This function must return a map. <code>function(data) {// do pre upload stuff}</code> |
+| `addPayload` | function (`file`) | No | `undefined` | function to add payload to be sent with file to server. This function must return a map. <code>function(file) {// return {payloadKey : "payLoadValue"};}</code> |
 | `postUpload` | function (`file`) | No | `undefined` | function invoked when file upload is completed <code>function(file) {// do post upload stuff}</code> |
 |`chunkSize` | Number | No | 1048576 (1 MB)| Chunk size when uploading large files |
 
