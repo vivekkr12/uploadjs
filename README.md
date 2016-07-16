@@ -1,10 +1,10 @@
 # Upload JS
-An HTML5 and JavaScript based file uploader which lets you add and upload files one by one or simaltaneously. Upload Js works best with html table integration but it's upload method can be used independently.
+An HTML5 and JavaScript based file uploader which lets you add and upload files one by one or simaltaneously. Upload Js displays added files in a html table but custom displays can be implemented. 
 
 ### Features
 * Add / upload multiple files at once
 * Highly customizable with option to hook custom methods to be invoked before / after every action
-* Chunked upload for large files
+* Chunked upload for large files with option to set chunk size
 * Drag and drop support
 * Option to add extra payload to be transfered as request parameter with file
 
@@ -36,9 +36,10 @@ Include the dependencies, create a new instnace of `Uploader` and pass on the ht
     wrapperFormId : "wrapperForm",
     serverUrl : "http://host:port/handler",
     onSuccess : function (file, response) {
+      // on success invoked when status is 200
       alert(response);
     },
-    onError : function (file, response, statusText) {
+    onError : function (file, response, status) {
       alert(response);
     }
   };
@@ -54,7 +55,7 @@ Files added for upload are by default displayed in a HTML table. This view can b
 ### File Validator
 Sometimes files must be validated before upload. For example reading a large file and verifying it's content. UplaodJS provies and option to add a file validator which registers addFile method as a callback.
 
-In the upload parameters implement the `validateFile` method.
+In the upload parameters implement and register `validateFile` method.
 
 ```javascript
 validateFile : function (file, onCheckPass, onCheckFail) {
@@ -63,9 +64,10 @@ validateFile : function (file, onCheckPass, onCheckFail) {
   reader.onloadend = function () {
     console.log('read file - validating...'+file.name);
     if (pass) {
-      onCheckPass(file);
+      onCheckPass(file); // must be called by implementor on check pass
     } else {
       onCheckFail(file, "Not a valid file");
+      return false; // return false to prevent further execution
     }
   };
   reader.readAsArrayBuffer(file);
@@ -88,14 +90,14 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 | `getFileDetails` | function | No | `undefined` | File Details to be displayed in the file table. <code>function (file) {<br>var fileDtls = {<br>  fileName : file.name,<br>  fileType : file.type,<br>  fileSize : file.size,<br>  fileLastMod : file.lastModified<br>};<br>return fileDtls;</code> |
 |`selectedRowColor`| string | No | `#dffff1` | Color to highlight the selected row in file table |
 | `serverUrl` | string | Yes | `undefined` | The URL of server to upload files |
-| `onSuccess` | function(`file, response`) | Yes | `undefined` | Callback when uplaod is successfull <code>function (file, response) {}</code> |
-| `onError` | function (`file, response, statusText`) | Yes | `undefined` | Callback when uplaod failed <code>function (file, response, statusText) {}</code> |
+| `onSuccess` | function(`file, response, xhr`) | Yes | `undefined` | Callback when uplaod is successfull <code>function (file, response, xhr) {}</code> |
+| `onError` | function (`file, response, status, xhr`) | Yes | `undefined` | Callback when upload failed <code>function (file, response, status, xhr) {}</code> |
 |`displayAddedFile`| function(`file`) | No | `undefined` | function to display added file while `customDisplay` is set to true. This parameter is mandatory when using custom display|
 |`getSelectedFile`| function | No | `undefined` | function to get the selected file from custom display|
 |`removeFileFromDisplay`| function(`file`) | No | `undefined` | function to remove added file from display while `customDisplay` is set to true. This parameter is mandatory when using custom display|
 |`validateFile`| function (`file`, `onCheckPass`, `onCheckFail`) | `undefined` | No | A method to validate the file before adding. Implementors must invoke `onCheckPass` / `onCheckFail` within this method when the validation checks pass / fail. UploadJS will register `addFile` as `onCheckPass` callback |
 |`onCheckFail`| function(`file`, `errorMsg`) | No | `undefined` | function invoked if file check fails. Required when validateFile is defined<code>function (file, errorMsg) {alert(file.name + " Invalid because " + errorMsg);}</code> |
-| `setProgress` | function (`progress`) | No| `undefined` | function to set current  upload progress to render progress bar. Minimum progress value is 0 and maximum is 100 <code>function (progress) {}</code> |
+| `setProgress` | function (`file, progress`) | No| `undefined` | function to set current  upload progress to render progress bar. Minimum progress value is 0 and maximum is 100 <code>function (file, progress) {}</code> |
 | `getProgress` | function | No | `undefined` | function to get the current uplaod progress. <i>Required if setProgress is defined. to manage total progress in case of chunked uploads</i> <code>function () {<br>  return progress;}</code> |
 | `preAddBtnAction` | function | No | `undefined` | function to execute any task before starting add action |
 | `postAddBtnAction` | function | No | `undefined` | function to execute any task after add action is finished |
@@ -114,6 +116,8 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 | `addPayload` | function (`file`) | No | `undefined` | function to add payload to be sent with file to server. This function must return a map. <code>function(file) {// return {payloadKey : "payLoadValue"};}</code> |
 | `postUpload` | function (`file`) | No | `undefined` | function invoked when file upload is completed <code>function(file) {// do post upload stuff}</code> |
 |`chunkSize` | Number | No | 1048576 (1 MB)| Chunk size when uploading large files |
+|`removeAfterUploadSuccess` | boolean | No | false | boolean flag to remove file from list of added files after file has been successfully uploaded |
+|`removeAfterUploadFail` | boolean | No | false | boolean flag to remove file from list of added files if upload fails afte upload attempt |
 
 ## Demo
 ##### For Default behaviour
@@ -136,4 +140,7 @@ To run the server code execute
 
 from `server/java/uplaodjs-server` directory
 
-##### *Pull reqeust for server code in other languages are welcome*
+## License
+<a href="https://github.com/vivekkr12/uploadjs/blob/master/LICENSE.md">MIT</a>
+
+##### *Pull reqeusts are welcome*

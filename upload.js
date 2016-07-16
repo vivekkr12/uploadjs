@@ -115,13 +115,14 @@ function Uploader(parameters) {
 
   this.getFileDetails = parameters.getFileDetails;
   this.selectedRowColor = typeof parameters.selectedRowColor === 'undefined' ? "#dffff1" : parameters.selectedRowColor;
+  this.removeAfterUploadSuccess = typeof parameters.removeAfterUploadSuccess === 'undefined' ? false : parameters.removeAfterUploadSuccess;
+  this.removeAfterUploadFail = typeof parameters.removeAfterUploadFail === 'undefined' ? false : parameters.removeAfterUploadFail;
 
   this.customDisplay = typeof parameters.customDisplay === 'undefined' ? false : parameters.customDisplay;
 
   if (this.customDisplay) {
 
     if (typeof parameters.displayAddedFile === 'undefined' || typeof parameters.removeFileFromDisplay === 'undefined') {
-
       throw "For custom display, two methods displayAddedFile and removeFileFromDisplay must be implemented";
     }
 
@@ -320,7 +321,14 @@ function Uploader(parameters) {
 
     var file;
     if (uploader.customDisplay) {
-      file = uploader.getSelectedFile();
+      if (uploader.getSelectedFile) {
+        file = uploader.getSelectedFile();
+      } else if (uploader.filesToBeUploaded.length === 1) {
+        file = uploader.filesToBeUploaded[0];
+      } else {
+        throw "In custom display, getSelectedFile must be implemented when adding multiple files";
+      }
+
     } else {
       var allCheckBoxes = document.getElementsByClassName("fileRowCheckBox");
       if (allCheckBoxes.length === 1) {
@@ -344,10 +352,7 @@ function Uploader(parameters) {
       if (addPayload) {
         payload = addPayload(file);
       }
-      uploader.uploadFile(file, onSuccess, onError, payload);
-      if (postUpload) {
-        postUpload(file);
-      }
+      uploader.uploadFile(file, onSuccess, onError, payload, postUpload);
     }
 
     if (postUploadBtnAction) {
@@ -435,7 +440,7 @@ Uploader.prototype = {
 
   },
 
-  uploadFile: function (file, onSuccess, onError, payload) {
+  uploadFile: function (file, onSuccess, onError, payload, postUpload) {
     /* Prepare to Uplaod*/
 
     var uploader = this;
@@ -478,13 +483,15 @@ Uploader.prototype = {
       if (uploader.setProgress) {
         if (evt.lengthComputable) {
           uploadProgress = initialValue + ((evt.loaded / evt.total) * progressDivisons);
-          uploader.setProgress(uploadProgress);
+          uploader.setProgress(file, uploadProgress);
         }
       }
     };
 
     uploadXhr.upload.onloadend = function (evt) {
-      initialValue = uploader.getProgress();
+      if (uploader.getProgress) {
+        initialValue = uploader.getProgress();
+      }
     };
 
     uploadXhr.onreadystatechange = function (evt) {
@@ -493,13 +500,23 @@ Uploader.prototype = {
         if (bytesLeft > 0) {
           sendRequest(xhr);
         } else {
+          // File upload complete here
           if (uploader.setProgress) {
-            uploader.setProgress(100);
+            uploader.setProgress(file, 100);
           }
-          onSuccess(file, xhr.response);
+          if (postUpload) {
+            postUpload(file);
+          }
+          if (uploader.removeAfterUploadSuccess) {
+            uploader.remove(file);
+          }
+          onSuccess(file, xhr.response, xhr);
         }
       } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status !== 200) {
-        onError(file, xhr.response, xhr.statusText);
+        if (uploader.removeAfterUploadFail) {
+          uploader.remove(file);
+        }
+        onError(file, xhr.response, xhr.status, xhr);
       }
     };
     sendRequest(uploadXhr);

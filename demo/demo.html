@@ -115,8 +115,12 @@
         onSuccess : function (file, response) {
           alert(response);
         },
-        onError : function (file, response, statusText) {
-          alert(response +"  "+statusText);
+        onError : function (file, response, status) {
+          if (status === 0) {
+            alert('Error connecting to server. Please check your connection');
+          } else {
+            alert('Error during upload : '+response);
+          }
         },
         /* Optional Parametres */
         validateFile : function (file, onCheckPass, onCheckFail) {
@@ -146,9 +150,11 @@
           };
           return fileDtls;
         },
-        selectedRowColor : "#e0e0e0",
+        removeAfterUploadSuccess : true,
+        removeAfterUploadFail: false,
+        selectedRowColor : "#dffff1",
         dropZoneId : "dropZone",
-        setProgress : function (progress) {
+        setProgress : function (file, progress) {
           var progressBar = document.getElementById('progressBar');
           progressBar.value = progress;
           progressBar.style.width = progress +'%';
