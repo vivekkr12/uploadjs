@@ -207,6 +207,20 @@ function Uploader(parameters) {
       preAddBtnAction();
     }
 
+    var duplicateFileCheck = function (file) {
+      if (uploader.filesToBeUploaded.contains(file)) {
+        if (onDuplicateAdd) {
+          onDuplicateAdd(file);
+        } else {
+          alert('This file already exists');
+        }
+        throw "File already added";
+      }
+    };
+    
+    var file, i;
+    var selectedFileIterator = new Iterator(filesSelected);
+    
     var addFileActivity = function (file) {
       if (preAdd) {
         preAdd(file);
@@ -216,32 +230,60 @@ function Uploader(parameters) {
         postAdd(file);
       }
     };
-
-    var file, i;
-    for (i = 0; i < filesSelected.length; i += 1) {
-      file = filesSelected[i];
-      if (uploader.filesToBeUploaded.contains(file)) {
-        if (onDuplicateAdd) {
-          onDuplicateAdd(file);
+    
+    var asyncAddFileActivity, validateFileExtended, onCheckFailExtended, continueAddingAsync;
+    if (validateFile) {
+      
+      continueAddingAsync = function () {
+        if (selectedFileIterator.hasNext()) {
+          validateFileExtended(selectedFileIterator.next(), asyncAddFileActivity, onCheckFailExtended);
         } else {
-          alert('This file already exists');
+          if (postAddBtnAction) {
+            postAddBtnAction();
+          }
+          uploader.resetAddBtn();
         }
-        continue;
-      }
-
-      if (validateFile) {
-        validateFile(file, addFileActivity, onCheckFail);
-      } else {
+      };
+      
+      asyncAddFileActivity = function (file) {
         addFileActivity(file);
+        continueAddingAsync();
+      };
+      
+      validateFileExtended = function (file, onCheckPass, onCheckFail) {
+        try {
+          duplicateFileCheck(file);
+          validateFile(file, asyncAddFileActivity, onCheckFail);
+        } catch (duplicateFileError) {
+          continueAddingAsync();
+        }
+      };
+      
+      onCheckFailExtended = function (file, errMsg) {
+        onCheckFail(file, errMsg);
+        continueAddingAsync();
+      };
+      
+    }
+    
+    if (validateFile) {
+      file = selectedFileIterator.next();
+      validateFileExtended(file, asyncAddFileActivity, onCheckFailExtended);
+    } else {
+      while (selectedFileIterator.hasNext()) {
+        file = selectedFileIterator.next();
+        try {
+          duplicateFileCheck(file);
+          addFileActivity(file);
+        } catch (e) {
+          continue;
+        }
       }
+      if (postAddBtnAction) {
+        postAddBtnAction();
+      }
+      uploader.resetAddBtn();
     }
-
-    uploader.resetAddBtn();
-
-    if (postAddBtnAction) {
-      postAddBtnAction();
-    }
-
   };
 
   this.addBtn.addEventListener('change', function (evt) {

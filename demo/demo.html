@@ -124,8 +124,11 @@
         },
         /* Optional Parametres */
         validateFile : function (file, onCheckPass, onCheckFail) {
+          console.log("validating file: "+file.name);
           var reader = new FileReader();
-          var pass = true;
+          var ext = file.name.substr(file.name.lastIndexOf(".")+1);
+          var pass = ext !== "exe"; // don't add exe files
+          
           reader.onloadend = function () {
             console.log('read file - validating...'+file.name);
             if (pass) {
@@ -138,8 +141,8 @@
           console.log('started reading file '+file.name);
         },
         onCheckFail : function (file) {
-          console.log('on check fail: '+file);
-          alert('check failed');
+          console.log('on check fail: '+file.name);
+          alert('check failed for file '+file.name);
         },
         getFileDetails : function (file) {
           var fileDtls = {
@@ -196,30 +199,30 @@
           console.log('post upload btn action called');
         },
         preAdd : function (file) {
-          console.log('pre add: '+file);
+          console.log('pre add: '+file.name);
         },
         postAdd : function (file) {
-          console.log('post add: '+file);
+          console.log('post add: '+file.name);
         },
         onDuplicateAdd : function (file) {
-          console.log('already added: '+file);
+          console.log('already added: '+file.name);
+          alert(file.name + " already added");
         },
         preRemove : function (file) {
-          console.log('pre remove: '+file);
+          console.log('pre remove: '+file.name);
         },
         postRemove : function (file) {
-          console.log('post remove: '+file);
+          console.log('post remove: '+file.name);
         },
         preUpload : function (file) {
-          console.log('pre upload: '+file);
+          console.log('pre upload: '+file.name);
         },
         addPayload : function (file) {
           return {'payloadKey' : 'payloadValue'};
         },
         postUpload : function (file) {
-          console.log('post upload: '+file);
-        },
-       
+          console.log('post upload: '+file.name);
+        }
         
       };
       
