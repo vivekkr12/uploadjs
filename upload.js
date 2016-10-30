@@ -94,6 +94,39 @@ Array.prototype.removeByIndex = function (index) {
 };
 
 /**
+ * Creates and Iterator for an Array which will expose the
+ * friendly APIs of hasNext() and next() to loop though
+ * the elements.
+ * If elements are added and removed after creating the
+ * Iterator, then it may misbehave.
+ * @param {Array} arr The arry to create an Iterator
+ */
+function Iterator(arr) {
+  this.arr = arr;
+  this.pointer = 0;
+}
+
+/**
+ * Checks if iterator contains more elements
+ * @returns {boolean} true if Iterator has more elements,
+ *                    false othewise.
+ */
+Iterator.prototype.hasNext = function () {
+  return this.pointer <= this.arr.length - 1;
+};
+
+/**
+ * Get the next element of the Iterator
+ * @returns next element of the Iterator
+ */
+Iterator.prototype.next = function () {
+  var element = this.arr[this.pointer];
+  this.pointer += 1;
+  return element;
+};
+
+
+/**
  * Creates an instance of a new Uploader with
  * the given upload patameters.
  * @param {json} parameters The upload parameters
