@@ -222,6 +222,11 @@
         },
         postUpload : function (file) {
           console.log('post upload: '+file.name);
+        },
+        maxAddedFiles : 25,
+        onMaxFileExceed : function (maxFiles) {
+          alert("Maximum of "+maxFiles+" can be added");
+          console.log("Maximum of "+maxFiles+" can be added");
         }
         
       };

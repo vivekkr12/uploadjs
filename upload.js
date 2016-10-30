@@ -170,6 +170,7 @@ function Uploader(parameters) {
   var preAdd = parameters.preAdd;
   var postAdd = parameters.postAdd;
   var onDuplicateAdd = parameters.onDuplicateAdd;
+  var onMaxFileExceed = parameters.onMaxFileExceed;
   var validateFile = parameters.validateFile;
   var onCheckFail = parameters.onCheckFail;
 
@@ -196,6 +197,7 @@ function Uploader(parameters) {
   var postUploadBtnAction = parameters.postUploadBtnAction;
 
   this.chunkSize = typeof parameters.chunkSize !== 'undefined' ? parameters.chunkSize : this.DEFAULT_CHUNK_SIZE;
+  this.maxAddedFiles = typeof parameters.maxAddedFiles !== 'undefined' ? parameters.maxAddedFiles : 1000;
 
   /**
    * Function invoked when files are selected from input 
@@ -251,6 +253,12 @@ function Uploader(parameters) {
       };
       
       validateFileExtended = function (file, onCheckPass, onCheckFail) {
+        if (uploader.filesToBeUploaded.length >= uploader.maxAddedFiles) {
+          if (onMaxFileExceed) {
+            onMaxFileExceed(uploader.maxAddedFiles);
+          }
+          return;
+        }
         try {
           duplicateFileCheck(file);
           validateFile(file, asyncAddFileActivity, onCheckFail);
@@ -271,6 +279,12 @@ function Uploader(parameters) {
       validateFileExtended(file, asyncAddFileActivity, onCheckFailExtended);
     } else {
       while (selectedFileIterator.hasNext()) {
+        if (uploader.filesToBeUploaded.length >= uploader.maxAddedFiles) {
+          if (onMaxFileExceed) {
+            onMaxFileExceed(uploader.maxAddedFiles);
+          }
+          break;
+        }
         file = selectedFileIterator.next();
         try {
           duplicateFileCheck(file);
