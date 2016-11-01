@@ -1,12 +1,23 @@
 # Upload JS
-An HTML5 and JavaScript based file uploader which lets you add and upload files one by one or simaltaneously. Upload Js displays added files in a html table but custom displays can be implemented.
+An HTML5 and JavaScript based file uploader which lets you add and upload files one by one or simultaneously. Upload JS displays added files in a html table but custom displays can be implemented.
 
-### Features
+## Features
+* Vanilla JavaScript and no third party dependencies
 * Add / upload multiple files at once
 * Highly customizable with option to hook custom methods to be invoked before / after every action
 * Chunked upload for large files with option to set chunk size
 * Drag and drop support
-* Option to add extra payload to be transfered as request parameter with file
+* Option to add extra payload to be transferred as request parameter with file
+
+## Build
+
+Use [nodejs](https://nodejs.org/en/) and [gulp](http://gulpjs.com/) to build the combined and minified js file. Clone the repo and from the project root run
+
+```
+$ npm install
+$ gulp
+```
+Include the `dist/upload.min.js` file in webpage. Alternatively the minified file can also be downloaded from releases.
 
 ## Usage
 
@@ -76,14 +87,14 @@ validateFile : function (file, onCheckPass, onCheckFail) {
 ```
 
 ## Upload Parameters
-Upload Parameters are mentioned in the [API docs](https://github.com/vivekkr12/uploadjs/blob/master/api-docs.md).
+Upload Parameters are mentioned in the [API docs](api-docs.md).
 
 ## Demo
 ##### For Default behaviour
-See [demo/demo.html](https://github.com/vivekkr12/uploadjs/blob/master/demo/demo.html)
+See [demo/demo.html](demo/demo.html)
 
 ##### For custom display
-See [demo/demo-custom-display.html](https://github.com/vivekkr12/uploadjs/blob/master/demo/demo-custom-display.html)
+See [demo/demo-custom-display.html](demo/demo-custom-display.html)
 
 ## Guide for Server Code
 
@@ -100,6 +111,6 @@ To run the server code execute
 from `server/java/uplaodjs-server` directory
 
 ## License
-[MIT](https://github.com/vivekkr12/uploadjs/blob/master/LICENSE.md)
+[MIT](LICENSE.md)
 
 ##### *Pull reqeusts are welcome*

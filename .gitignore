@@ -3,3 +3,5 @@ TODO.txt
 .classpath
 .project
 target/
+node_modules/
+dist/

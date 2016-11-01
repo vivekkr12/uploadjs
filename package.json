@@ -1,0 +1,27 @@
+{
+  "name": "uploadjs",
+  "version": "0.6.0",
+  "description": "An HTML5 and JavaScript based file uploader to add and upload files one by one or simaltaneously",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vivekkr12/uploadjs.git"
+  },
+  "author": "Vivek Kumar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vivekkr12/uploadjs/issues"
+  },
+  "homepage": "https://github.com/vivekkr12/uploadjs#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-insert": "^0.5.0",
+    "gulp-uglify": "^2.0.0",
+    "install": "^0.8.2",
+    "npm": "^3.10.9"
+  }
+}
